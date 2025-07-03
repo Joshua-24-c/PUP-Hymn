@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Polytechnic University of the Philippines Hymn</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <img src="pup-logo.png" alt="PUP Logo" style="width: 120px; margin-bottom: 20px; transition: transform 0.3s;" 
+    onmouseover="this.style.transform='scale(1.1)'" 
+    onmouseout="this.style.transform='scale(1)'">
+
+  <h1 class="pup-title">
+    Polytechnic University of the Philippines Hymn
+  </h1>
+
+  <audio id="pupHymn">
+    <source src="pup-hymn.mp3" type="audio/mpeg">
+    Your browser does not support the audio element.
+  </audio>
+
+  <div class="lyrics-container" id="lyricsContainer">
+    <div class="lyrics fade-in" id="lyricsPlaceholder">...</div>
+    <div class="lyrics" id="lyricsText">
+      Sintang Paaralan <br>
+      Tanglaw ka ng bayan <br>
+      Pandayan ng isip ng kabataan <br>
+      Kami ay dumating nang salat sa yaman <br>
+      Hanap na dunong ay iyong alay <br>
+      Ang layunin mong makatao <br>
+      Dinarangal ang Pilipino <br>
+      Ang iyong aral, diwa, adhikang taglay <br>
+      PUP, aming gabay <br>
+      Paaralang dakila <br>
+      PUP, pinagpala <br>
+      Gagamitin ang karunungan <br>
+      Mula sa iyo, para sa bayan <br>
+      Ang iyong aral, diwa, adhikang taglay <br>
+      PUP, aming gabay <br>
+      Paaralang dakila <br>
+      PUP, pinagpala <br>
+    </div>
+  </div>
+
+  <progress id="progressBar" value="0" max="100"></progress>
+
+  <div class="control-buttons">
+    <button onclick="playMusic()" class="play-btn">Play</button>
+    <button onclick="pauseMusic()" class="pause-btn">Pause</button>
+  </div>
+
+  <script>
+    let audio = document.getElementById("pupHymn");
+    let lyricsText = document.getElementById("lyricsText");
+    let lyricsPlaceholder = document.getElementById("lyricsPlaceholder");
+    let isPaused = false;
+    let lastPosition = 0;
+    let startTime = 0;
+    let elapsedTime = 0;
+    let totalScrollDistance = 0;
+
+    function playMusic() {
+      audio.play();
+
+      if (isPaused) {
+        let remainingTime = audio.duration - elapsedTime;
+        lyricsText.style.transition = `transform ${remainingTime}s linear`;
+        lyricsText.style.transform = `translateY(-${totalScrollDistance}px)`;
+      } else {
+        setTimeout(() => {
+          lyricsPlaceholder.style.display = "none";
+          lyricsText.classList.add("fade-in");
+          startScrolling();
+        }, 12000);
+      }
+
+      isPaused = false;
+    }
+
+    function pauseMusic() {
+      audio.pause();
+      let computedStyle = window.getComputedStyle(lyricsText);
+      let matrix = new DOMMatrix(computedStyle.transform);
+      lastPosition = matrix.m42;
+      lyricsText.style.transition = "none";
+      lyricsText.style.transform = `translateY(${lastPosition}px)`;
+      elapsedTime = audio.currentTime;
+      isPaused = true;
+    }
+
+    function startScrolling() {
+      let duration = audio.duration || 90;
+      let lyricsHeight = lyricsText.clientHeight;
+      let containerHeight = document.querySelector('.lyrics-container').clientHeight;
+      totalScrollDistance = lyricsHeight + containerHeight;
+      let adjustedDuration = (duration - 12) * 0.98;
+
+      setTimeout(() => {
+        lyricsText.style.transition = `transform ${adjustedDuration}s linear`;
+        lyricsText.style.transform = `translateY(-${totalScrollDistance}px)`;
+      }, 1000);
+    }
+
+    audio.ontimeupdate = function () {
+      let progress = (audio.currentTime / audio.duration) * 100;
+      document.getElementById("progressBar").value = progress;
+    };
+  </script>
+</body>
+</html>
